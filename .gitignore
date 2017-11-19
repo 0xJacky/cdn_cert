@@ -1,0 +1,4 @@
+*.pyc
+settings.py
+cert.db
+test.py
