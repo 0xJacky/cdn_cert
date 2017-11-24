@@ -20,7 +20,7 @@ class DB:
         self.query(sql)
 
     def delete(self, domain):
-        sql = 'DELETE FROM cert_data WHERE domain=%s' % domain
+        sql = 'DELETE FROM cert_data WHERE domain=\'%s\'' % domain
         self.query(sql)
 
     def fetchone(self, domain):

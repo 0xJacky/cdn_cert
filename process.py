@@ -17,22 +17,34 @@ mail = Mail()
 class Process:
     def __init__(self):
         pass
-    # 获取证书 md5 返回: 字典
-    def key_md5(self, domain):
+
+    # 执行操作
+    def do(self):
+        self.diff_domain_list()
+        self.push()
+
+    # 获取证书 md5
+    # 返回: 字符串
+    def cert_md5(self, domain):
         privkey = os.path.join(settings.LiveCert, domain, 'privkey.pem')
         return hashlib.md5(privkey).hexdigest()
 
-    def insert_domain_list(self):
+    # 对比域名列表差异
+    def diff_domain_list(self):
         db_tuple = db.domainlist()
+        for d in db_tuple:
+            if d not in settings.DomainName:
+                db.delete(d)
         for d in settings.DomainName:
             if d not in db_tuple:
                 db.insert(d)
 
+    # 处理推送
     def push(self):
         msg = {}
         for d in settings.DomainName:
             store_md5 = db.fetchone(d)[1]
-            currect_md5 = self.key_md5(d)
+            currect_md5 = self.cert_md5(d)
             if not currect_md5 == store_md5:
                 try:
                     self.Client = client.AcsClient(settings.AccessKeyId, settings.AccessKeySecret, 'cn-hangzhou')
@@ -49,15 +61,17 @@ class Process:
                     PrivateKey = open(PrivateKey_path, 'r').read()
                     self.request.set_ServerCertificate(ServerCertificate)
                     self.request.set_PrivateKey(PrivateKey)
-                    result = self.Client.do_action_with_exception(self.request)
+                    RequestId = json.loads(self.Client.do_action_with_exception(self.request))['RequestId']
+                    result = 'Push success, RequestId: '+ RequestId
                     db.update(d, currect_md5)
                 except Exception as e:
-                    result = e.get_error_code()
+                    result = e.get_error_code() if hasattr(e, 'get_error_code') else e
                 msg[d] = result
         if msg:
             content = ""
             for k,v in msg.iteritems():
                 content += 'Domain: ' + k + '\nResult: ' + str(v) + "\n\n"
-            mail.send('证书推送结果', content)
+            print content
+            mail.send('[CDN Cert] 证书推送结果', content)
         else:
             print "Already up-to-date."

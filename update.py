@@ -6,7 +6,6 @@
 # ！请先使用 pip install aliyun-python-sdk-cdn 安装 sdk！
 
 from process import Process
-main = Process()
 
-main.insert_domain_list()
-main.push()
+Process = Process()
+Process.do()
