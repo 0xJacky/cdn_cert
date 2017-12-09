@@ -6,9 +6,6 @@ import os
 AccessKeyId = ''
 AccessKeySecret = ''
 
-# 指定证书所属加速域名，需属于https加速类型
-DomainName = ['',]
-
 # Let's encrypt 证书目录，一般情况下无需修改
 LetsencryptPath = os.path.join('/etc/letsencrypt')
 LiveCert = os.path.join(LetsencryptPath, 'live')

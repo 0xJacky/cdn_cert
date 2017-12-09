@@ -19,9 +19,8 @@ class Process:
         pass
 
     # 执行操作
-    def do(self):
-        self.diff_domain_list()
-        self.push()
+    def do(self, force=False):
+        self.push(force=force)
 
     # 获取证书 md5
     # 返回: 字符串
@@ -29,23 +28,13 @@ class Process:
         privkey = os.path.join(settings.LiveCert, domain, 'privkey.pem')
         return hashlib.md5(privkey).hexdigest()
 
-    # 对比域名列表差异
-    def diff_domain_list(self):
-        db_tuple = db.domainlist()
-        for d in db_tuple:
-            if d not in settings.DomainName:
-                db.delete(d)
-        for d in settings.DomainName:
-            if d not in db_tuple:
-                db.insert(d)
-
     # 处理推送
-    def push(self):
+    def push(self, force):
         msg = {}
-        for d in settings.DomainName:
+        for d in db.fetchall():
             store_md5 = db.fetchone(d)[1]
             currect_md5 = self.cert_md5(d)
-            if not currect_md5 == store_md5:
+            if not currect_md5 == store_md5 or force is True:
                 try:
                     self.Client = client.AcsClient(settings.AccessKeyId, settings.AccessKeySecret, 'cn-hangzhou')
                     self.request = SetDomainServerCertificateRequest.SetDomainServerCertificateRequest()
@@ -62,7 +51,7 @@ class Process:
                     self.request.set_ServerCertificate(ServerCertificate)
                     self.request.set_PrivateKey(PrivateKey)
                     RequestId = json.loads(self.Client.do_action_with_exception(self.request))['RequestId']
-                    result = 'Push success, RequestId: '+ RequestId
+                    result = "Push success\nRequestId: "+ RequestId
                     db.update(d, currect_md5)
                 except Exception as e:
                     result = e.get_error_code() if hasattr(e, 'get_error_code') else e

@@ -1,36 +1,95 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
-import sqlite3
+from sqlalchemy import *
 
 class DB:
     def __init__(self):
-        self.con = sqlite3.connect('cert.db')
-        self.c = self.con.cursor()
+        self.db = create_engine('sqlite:///cert.db')
+        self.db.echo = False
+        self.conn = self.db.connect()
+        self.metadata = MetaData(self.db)
+        if not self.db.dialect.has_table(self.db, 'cert_data'):
+            self.init()
+        self.data = Table('cert_data',
+                        self.metadata,
+                        autoload=True)
+
 
     def query(self, sql):
         self.c.execute(sql)
         self.con.commit()
 
-    def insert(self, domain):
-        sql = "INSERT INTO cert_data VALUES (\'%s\', 'NULL')" % domain
-        self.query(sql)
+    def add(self):
+        i = self.data.insert()
+        domain = raw_input('Plase input the domain name, use \',\' to split.\n')
+        d = ()
+        if ',' in domain:
+            domain_list = domain.split(',')
+            for k in domain_list:
+                t = {}
+                t['domain'] = k
+                t['md5'] = ''
+                d = d + (t,)
+        else:
+            t = {}
+            t['domain'] = domain
+            t['md5'] = ''
+            d = d + (t,)
+        try:
+            i.execute(d)
+            print "Execute successfully."
+        except Exception:
+            print Exception
 
     def update(self, domain, md5):
-        sql = 'UPDATE cert_data SET md5=\'%s\' WHERE domain=\'%s\'' % (md5, domain)
-        self.query(sql)
+        query = self.data.update().where(self.data.c.domain == domain).values({'md5': md5})
+        self.conn.execute(query)
 
-    def delete(self, domain):
-        sql = 'DELETE FROM cert_data WHERE domain=\'%s\'' % domain
-        self.query(sql)
+    def delete(self):
+        domain = raw_input('Plase input a domain name to delete.\n')
+        query = self.data.delete().where(self.data.c.domain == domain)
+        try:
+            self.conn.execute(query)
+            print "Execute successfully."
+        except Exception:
+            print Exception
 
     def fetchone(self, domain):
-        sql = 'SELECT * FROM cert_data WHERE domain=\'%s\'' % domain
-        self.c.execute(sql)
-        return self.c.fetchone()
+        query = self.data.select().where(self.data.c.domain == domain)
+        return self.conn.execute(query).fetchone()
+
+    def fetchall(self):
+        s = self.data.select()
+        r = s.execute()
+        output = ()
+        for f in r.fetchall():
+            output = output + (f[0],)
+        return output
 
     def domainlist(self):
-        self.c.execute('SELECT `domain` FROM cert_data')
-        result = ()
-        for f in self.c.fetchall():
-            result = result + f
-        return result
+        s = self.data.select()
+        r = s.execute()
+        print "CDN Cert -- Domain List"
+        print "-----------------------"
+        for f in r.fetchall():
+            print f[0]
+        print "-----------------------"
+
+    def init(self):
+        table = (
+            ('cert_data',
+                (
+                    Column('domain', String(255), unique=True),
+                    Column('md5', String(32)),
+                ),
+            ),
+        )
+        metadata = MetaData(self.db)
+
+        for name, columns in table:
+            try:
+                c_table = Table(name, metadata, autoload=True)
+            except:
+                c_table = apply(Table, (name, metadata) + columns)
+                c_table.create()
+        print 'Database has been initialized'
