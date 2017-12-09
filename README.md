@@ -15,67 +15,69 @@ git clone https://github.com/0xJacky/cdn_cert.git
 pip install aliyun-python-sdk-cdn
 ```
 2. 配置
-	将 `settings-template.py` 复制一份并命名为 `settings.py`
 
-	打开 `settings.py` 进行配置
+将 `settings-template.py` 复制一份并命名为 `settings.py`
 
-	运行 `python update.py -a` 添加需要自动续期的域名到数据库
+打开 `settings.py` 进行配置
+
+运行 `python update.py -a` 添加需要自动续期的域名到数据库
 
 3.  参数
-	
-	$python update.py -h
-	usage: update.py [-h] [-f] [-a] [-d] [-ls]
-	
-	CDN_Cert - Automatically push the new certificates to CDN
-	
-	optional arguments:
-	  -h, --help    show this help message and exit
-	  -f, --force   force update
-	  -a, --add     add domain name to database
-	  -d, --delete  remove domain name from database
-	  -l, --list   print all the domain names from database
-	
-	e.g.
-	$python update.py
-	Domain: jackyu.cn
-	Result: Push success
-	RequestId: D40F6BC4-6418-43B1-8E31-8BBB548AB3E2
-	
-	Domain: beta.uozi.org
-	Result: Push success
-	RequestId: 9BF6A271-38CC-45F4-8DA0-48022DB742A3
-	
-	
-	邮件发送成功！
-	$python update.py -f (force update)
-	Domain: jackyu.cn
-	Result: Push success
-	RequestId: D40F6BC4-6418-43B1-8E31-8BBB548AB3E2
-	
-	Domain: beta.uozi.org
-	Result: Push success
-	RequestId: 9BF6A271-38CC-45F4-8DA0-48022DB742A3
-	
-	
-	邮件发送成功！
-	
-	$python update.py -l
-	CDN Cert -- Domain List
-	-----------------------
-	beta.uozi.org
-	jackyu.cn
-	-----------------------
-	
-	$python update.py -a
-	Plase input the domain name, use ',' to split.
-	ojbk.me
-	Execute successfully.
-	
-	$python update.py -d
-	Plase input a domain name to delete.
-	beta.uozi.org
-	Execute successfully.
-	
+
+```
+$python update.py -h
+usage: update.py [-h] [-f] [-a] [-d] [-ls]
+
+CDN_Cert - Automatically push the new certificates to CDN
+
+optional arguments:
+  -h, --help    show this help message and exit
+  -f, --force   force update
+  -a, --add     add domain name to database
+  -d, --delete  remove domain name from database
+  -l, --list   print all the domain names from database
+
+e.g.
+$python update.py
+Domain: jackyu.cn
+Result: Push success
+RequestId: D40F6BC4-6418-43B1-8E31-8BBB548AB3E2
+
+Domain: beta.uozi.org
+Result: Push success
+RequestId: 9BF6A271-38CC-45F4-8DA0-48022DB742A3
+
+
+邮件发送成功！
+$python update.py -f
+Domain: jackyu.cn
+Result: Push success
+RequestId: D40F6BC4-6418-43B1-8E31-8BBB548AB3E2
+
+Domain: beta.uozi.org
+Result: Push success
+RequestId: 9BF6A271-38CC-45F4-8DA0-48022DB742A3
+
+
+邮件发送成功！
+
+$python update.py -l
+CDN Cert -- Domain List
+-----------------------
+beta.uozi.org
+jackyu.cn
+-----------------------
+
+$python update.py -a
+Plase input the domain name, use ',' to split.
+ojbk.me
+Execute successfully.
+
+$python update.py -d
+Plase input a domain name to delete.
+beta.uozi.org
+Execute successfully.
+```
 4. 定时配置
 ```
 crontab -e
