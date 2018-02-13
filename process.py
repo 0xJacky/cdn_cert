@@ -19,8 +19,16 @@ class Process:
         pass
 
     # 执行操作
-    def do(self, force=False):
-        self.push(force=force)
+    def do(self, force=False, only=''):
+        queue = ()
+        if only:
+            if db.intable(only):
+                queue = (only,)
+            else:
+                exit('No record of this domain name.')
+        else:
+            queue = db.fetchall()
+        self.push(force=force, queue=queue)
 
     # 获取证书 md5
     # 返回: 字符串
@@ -29,9 +37,9 @@ class Process:
         return hashlib.md5(privkey).hexdigest()
 
     # 处理推送
-    def push(self, force):
+    def push(self, force, queue=()):
         msg = {}
-        for d in db.fetchall():
+        for d in queue:
             store_md5 = db.fetchone(d)[1]
             currect_md5 = self.cert_md5(d)
             if not currect_md5 == store_md5 or force is True:

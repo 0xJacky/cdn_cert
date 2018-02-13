@@ -75,6 +75,12 @@ class DB:
             print f[0]
         print "-----------------------"
 
+    def intable(self, domain):
+        if self.fetchone(domain=domain):
+            return True
+        else:
+            return False
+
     def init(self):
         table = (
             ('cert_data',
