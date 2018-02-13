@@ -26,16 +26,18 @@ pip install aliyun-python-sdk-cdn sqlalchemy
 
 ```
 $python update.py -h
-usage: update.py [-h] [-f] [-a] [-d] [-l]
+usage: update.py [-h] [-f] [-o ONLY] [-a] [-d] [-ls]
 
 CDN_Cert - Automatically push the new certificates to CDN
 
 optional arguments:
-  -h, --help    show this help message and exit
-  -f, --force   force update
-  -a, --add     add domain name to database
-  -d, --delete  remove domain name from database
-  -l, --list   print all the domain names from database
+  -h, --help            show this help message and exit
+  -f, --force           force update
+  -o ONLY, --only ONLY  update only, use it after -f/-force
+  -a, --add             add domain name to database
+  -d, --delete          remove domain name from database
+  -ls, --list           print all the domain names from database
+
 
 e.g.
 $python update.py
@@ -61,11 +63,18 @@ RequestId: 9BF6A271-38CC-45F4-8DA0-48022DB742A3
 
 邮件发送成功！
 
-$python update.py -l
+$python update.py -f -o ipsw.pw
+Domain: ipsw.pw
+Result: Push success
+RequestId: AE15AC6F-5D71-4732-A6A6-02863057B202
+
+
+$python update.py -ls
 CDN Cert -- Domain List
 -----------------------
-beta.uozi.org
+apt.uozi.org
 jackyu.cn
+ipsw.pw
 -----------------------
 
 $python update.py -a
