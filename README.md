@@ -12,7 +12,7 @@
 1. 准备
 ```
 git clone https://github.com/0xJacky/cdn_cert.git
-pip install aliyun-python-sdk-cdn
+pip install aliyun-python-sdk-cdn sqlalchemy
 ```
 2. 配置
 
@@ -26,7 +26,7 @@ pip install aliyun-python-sdk-cdn
 
 ```
 $python update.py -h
-usage: update.py [-h] [-f] [-a] [-d] [-ls]
+usage: update.py [-h] [-f] [-a] [-d] [-l]
 
 CDN_Cert - Automatically push the new certificates to CDN
 
