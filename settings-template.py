@@ -12,7 +12,7 @@ LiveCert = os.path.join(LetsencryptPath, 'live')
 
 # 数据存储地址
 ABS_PATH = os.path.split(os.path.realpath(__file__))[0]
-JSON_PATH = os.path.join(ABS_PATH, 'data.json')
+DB_PATH = os.path.join(ABS_PATH, 'cert.db')
 
 # 邮件反馈设置 - 阿里云邮件推送服务
 Host = 'smtpdm.aliyun.com'

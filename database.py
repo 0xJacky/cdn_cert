@@ -1,10 +1,11 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 from sqlalchemy import *
+from settings import DB_PATH
 
 class DB:
     def __init__(self):
-        self.db = create_engine('sqlite:///cert.db')
+        self.db = create_engine('sqlite:///'+DB_PATH)
         self.db.echo = False
         self.conn = self.db.connect()
         self.metadata = MetaData(self.db)
