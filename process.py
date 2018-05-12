@@ -62,7 +62,6 @@ class Process:
                     RequestId = json.loads(self.Client.do_action_with_exception(self.request))['RequestId']
                     result = "Push success\nRequestId: "+ RequestId
                     db.update(d, currect_md5)
-                    print PrivateKey_path
                 except Exception as e:
                     result = e.get_error_code() if hasattr(e, 'get_error_code') else e
                 msg[d] = result
