@@ -33,8 +33,9 @@ class Process:
     # 获取证书 md5
     # 返回: 字符串
     def cert_md5(self, domain):
-        privkey = os.path.join(settings.LiveCert, domain, 'privkey.pem')
-        return hashlib.md5(privkey).hexdigest()
+        PrivateKey_path = os.path.join(settings.LiveCert, domain, 'privkey.pem')
+        privkey = open(PrivateKey_path, 'rb')
+        return hashlib.md5(privkey.read()).hexdigest()
 
     # 处理推送
     def push(self, force, queue=()):
@@ -42,7 +43,7 @@ class Process:
         for d in queue:
             store_md5 = db.fetchone(d)[1]
             currect_md5 = self.cert_md5(d)
-            if not currect_md5 == store_md5 or force is True:
+            if not currect_md5 == store_md5 or force == True:
                 try:
                     self.Client = client.AcsClient(settings.AccessKeyId, settings.AccessKeySecret, 'cn-hangzhou')
                     self.request = SetDomainServerCertificateRequest.SetDomainServerCertificateRequest()
@@ -61,6 +62,7 @@ class Process:
                     RequestId = json.loads(self.Client.do_action_with_exception(self.request))['RequestId']
                     result = "Push success\nRequestId: "+ RequestId
                     db.update(d, currect_md5)
+                    print PrivateKey_path
                 except Exception as e:
                     result = e.get_error_code() if hasattr(e, 'get_error_code') else e
                 msg[d] = result
