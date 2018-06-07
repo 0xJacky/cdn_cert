@@ -22,6 +22,17 @@ pip install aliyun-python-sdk-cdn sqlalchemy
 
 运行 `python update.py -a` 添加需要自动续期的域名到数据库
 
+##### 2018.6.7 更新日志（important!)
+
+请注意，更新完本版本后务必重新配置 `settings-template.py`
+
+本次更新增加了 `ServerCertificateName` 和 `PrivkeyName` 两个变量，以适应 acme.sh 生成证书的路径
+
+`PrivkeyName` 提供变量 `{{ domain_name }}`
+
+例如，使用 acme.sh 管理证书的用户，生成的私钥名称与域名相同，则应该设置为 `PrivkeyName = '{{ domain_name }}.key'`
+
+
 3.  参数
 
 ```
