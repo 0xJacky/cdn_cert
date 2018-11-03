@@ -58,17 +58,17 @@ class Process:
                     PrivateKey = open(PrivateKey_path, 'r').read()
                     self.request.set_ServerCertificate(ServerCertificate)
                     self.request.set_PrivateKey(PrivateKey)
-                    RequestId = json.loads(self.Client.do_action_with_exception(self.request))['RequestId']
-                    result = "Push success\nRequestId: "+ RequestId
+                    RequestId = json.loads(self.Client.do_action_with_exception(self.request).decode('utf-8'))['RequestId']
+                    result = "Push success\nRequestId: "+ str(RequestId)
                     db.update(d, currect_md5)
                 except Exception as e:
                     result = e.get_error_code() if hasattr(e, 'get_error_code') else e
                 msg[d] = result
         if msg:
             content = ""
-            for k,v in msg.iteritems():
+            for k,v in msg.items():
                 content += 'Domain: ' + k + '\nResult: ' + str(v) + "\n\n"
-            print content
+            print(content)
             mail.send('[CDN Cert] 证书推送结果', content)
         else:
-            print "Already up-to-date."
+            print("Already up-to-date.")

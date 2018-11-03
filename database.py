@@ -38,9 +38,9 @@ class DB:
             d = d + (t,)
         try:
             i.execute(d)
-            print "Execute successfully."
+            print("Execute successfully.")
         except Exception:
-            print Exception
+            print(Exception)
 
     def update(self, domain, md5):
         query = self.data.update().where(self.data.c.domain == domain).values({'md5': md5})
@@ -51,9 +51,9 @@ class DB:
         query = self.data.delete().where(self.data.c.domain == domain)
         try:
             self.conn.execute(query)
-            print "Execute successfully."
+            print("Execute successfully.")
         except Exception:
-            print Exception
+            print(Exception)
 
     def fetchone(self, domain):
         query = self.data.select().where(self.data.c.domain == domain)
@@ -70,11 +70,11 @@ class DB:
     def domainlist(self):
         s = self.data.select()
         r = s.execute()
-        print "CDN Cert -- Domain List"
-        print "-----------------------"
+        print("CDN Cert -- Domain List")
+        print("-----------------------")
         for f in r.fetchall():
-            print f[0]
-        print "-----------------------"
+            print(f[0])
+        print("-----------------------")
 
     def intable(self, domain):
         if self.fetchone(domain=domain):
@@ -99,4 +99,4 @@ class DB:
             except:
                 c_table = apply(Table, (name, metadata) + columns)
                 c_table.create()
-        print 'Database has been initialized'
+        print('Database has been initialized')
