@@ -92,12 +92,13 @@ pip3 install -r requirements.txt
 
 7. 开发模式 `-v`
 8. 强制更新 `-f`
-9. 推送成功的邮件模板
+9. 仅更新单个域名 `-f -o {doamain}`
+10. 推送成功的邮件模板
 
     ![image][image-9]
     
 
-9. 定时配置
+11. 定时配置
 ```
 crontab -e
 # 每天 3:30 执行
