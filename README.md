@@ -102,7 +102,7 @@ pip3 install -r requirements.txt
 ```
 crontab -e
 # 每天 3:30 执行
-30 3 * * * python /home/cdn_cert/update.py
+30 3 * * * python3 /home/cdn_cert/update.py
 ```
 
 ### LICENSE 版权声明
