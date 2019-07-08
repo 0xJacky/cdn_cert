@@ -1,11 +1,11 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 import os
-## 配置开始
-# 访问 https://ak-console.aliyun.com/index#/accesskey 获取
-AccessKeyId = ''
-AccessKeySecret = ''
+# 数据存储地址
+ABS_PATH = os.path.split(os.path.realpath(__file__))[0]
+DB_PATH = os.path.join(ABS_PATH, 'cert.db')
 
+## 配置开始
 # Let's encrypt 证书目录，一般情况下无需修改
 # LetsencryptPath = os.path.join('/usr/local/nginx/conf')
 # LiveCert = os.path.join(LetsencryptPath, 'ssl')
@@ -20,10 +20,6 @@ PrivkeyName = 'privkey.pem'
 # 例如，使用 acme.sh 管理证书的用户，生成的私钥名称与域名相同，则应该设置为 PrivkeyName = '{{ domain_name }}.key'
 # ServerCertificateName = 'fullchain.cer'
 # PrivkeyName = '{{ domain_name }}.key'
-
-# 数据存储地址
-ABS_PATH = os.path.split(os.path.realpath(__file__))[0]
-DB_PATH = os.path.join(ABS_PATH, 'cert.db')
 
 # 邮件反馈设置 - 阿里云邮件推送服务
 Host = 'smtpdm.aliyun.com'

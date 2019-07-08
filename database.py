@@ -1,102 +1,101 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
-from sqlalchemy import *
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine, Table, Column, String, Integer, MetaData
+from sqlalchemy.orm import sessionmaker
 from settings import DB_PATH
 
-class DB:
-    def __init__(self):
-        self.db = create_engine('sqlite:///'+DB_PATH)
-        self.db.echo = False
-        self.conn = self.db.connect()
-        self.metadata = MetaData(self.db)
-        if not self.db.dialect.has_table(self.db, 'cert_data'):
-            self.init()
-        self.data = Table('cert_data',
-                        self.metadata,
-                        autoload=True)
+engine = create_engine('sqlite:///' + DB_PATH)
+db = declarative_base()
 
 
-    def query(self, sql):
-        self.c.execute(sql)
-        self.con.commit()
+class Domain(db):
+    __tablename__ = "domain"
+    id = Column(Integer, primary_key=True)
+    domain = Column(String(255))
+    md5 = Column(String(32))
+    user = Column(Integer)
 
-    def add(self):
-        i = self.data.insert()
-        domain = raw_input('Plase input the domain name, use \',\' to split.\n')
-        d = ()
-        if ',' in domain:
-            domain_list = domain.split(',')
-            for k in domain_list:
-                t = {}
-                t['domain'] = k
-                t['md5'] = ''
-                d = d + (t,)
-        else:
-            t = {}
-            t['domain'] = domain
-            t['md5'] = ''
-            d = d + (t,)
+
+class User(db):
+    __tablename__ = "user"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255))
+    access_key_id = Column(String(16))
+    access_key_secret = Column(String(32))
+
+
+class Database(object):
+    def __init__(self, verbosity = False):
+        engine.echo = verbosity
+        db.metadata.create_all(engine)
+        self.sessionmaker = sessionmaker(bind=engine)
+        self.session = self.sessionmaker()
+
+    def add_user(self, name, access_key_id, access_key_secret):
         try:
-            i.execute(d)
-            print("Execute successfully.")
+            self.session.add(User(name=name, access_key_id=access_key_id, access_key_secret=access_key_secret))
+            self.session.commit()
+            print("\033[1;32mUser %s added successfully\033[0m" % name)
         except Exception:
             print(Exception)
 
-    def update(self, domain, md5):
-        query = self.data.update().where(self.data.c.domain == domain).values({'md5': md5})
-        self.conn.execute(query)
-
-    def delete(self):
-        domain = raw_input('Plase input a domain name to delete.\n')
-        query = self.data.delete().where(self.data.c.domain == domain)
+    def add_domain(self, domain, user):
         try:
-            self.conn.execute(query)
-            print("Execute successfully.")
+            self.session.add(Domain(domain=domain, user=user))
+            self.session.commit()
+            print("\033[1;32mDomain %s added successfully\033[0m" % domain)
         except Exception:
             print(Exception)
 
-    def fetchone(self, domain):
-        query = self.data.select().where(self.data.c.domain == domain)
-        return self.conn.execute(query).fetchone()
+    def get_domain(self, domain):
+        return self.session.query(Domain).filter(Domain.domain == domain).first()
 
-    def fetchall(self):
-        s = self.data.select()
-        r = s.execute()
-        output = ()
-        for f in r.fetchall():
-            output = output + (f[0],)
-        return output
+    def get_all_domain(self):
+        return self.session.query(Domain).all()
 
-    def domainlist(self):
-        s = self.data.select()
-        r = s.execute()
-        print("CDN Cert -- Domain List")
-        print("-----------------------")
-        for f in r.fetchall():
-            print(f[0])
-        print("-----------------------")
-
-    def intable(self, domain):
-        if self.fetchone(domain=domain):
+    def has_domain(self, domain):
+        domain = self.get_domain(domain)
+        if domain is not None:
             return True
-        else:
-            return False
+        return False
 
-    def init(self):
-        table = (
-            ('cert_data',
-                (
-                    Column('domain', String(255), unique=True),
-                    Column('md5', String(32)),
-                ),
-            ),
-        )
-        metadata = MetaData(self.db)
+    def has_user(self, user):
+        user = self.get_user(user)
+        if user is not None:
+            return True
+        return False
 
-        for name, columns in table:
-            try:
-                c_table = Table(name, metadata, autoload=True)
-            except:
-                c_table = apply(Table, (name, metadata) + columns)
-                c_table.create()
-        print('Database has been initialized')
+    def get_user(self, name):
+        return self.session.query(User).filter(User.name == name).first()
+
+    def get_all_user(self):
+        return self.session.query(User).all()
+
+    def update_domain(self, domain, md5, user=None):
+        try:
+            domain = self.session.query(Domain).filter(Domain.domain == domain).first()
+            domain.md5 = md5
+            if user is not None:
+                domain.user = user
+                print("\033[1;32mDomain %s updated successfully\033[0m" % domain)
+            self.session.commit()
+        except Exception:
+            print(Exception)
+
+    def delete_domain(self, domain):
+        self.session.query(Domain).filter(Domain.domain == domain).delete()
+        self.session.commit()
+        print("\033[1;32mDomain %s deleted successfully\033[0m" % domain)
+
+    def delete_user(self, name):
+        try:
+            self.session.query(User).filter(User.name == name).delete()
+            self.session.commit()
+            print("\033[1;32mUser %s deleted successfully\033[0m" % name)
+        except Exception:
+            print(Exception)
+
+
+
+

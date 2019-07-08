@@ -1,26 +1,35 @@
 # CDN Cert
 自动将 Let's encrypt 续签后的证书推送到阿里云 CDN
 
+## v2 更新日志
+更新于 2019 年 7 月 8 日
+
+1. 支持多 RAM 账号。
+
+    即当您有多个网站存在于同一个服务器上，且多个网站部署CDN时使用的不是同一阿里云账号时，
+    CDN Cert 可以向多个阿里云账号推送续签后的证书。
+
+2. **完全迁移至 Python 3.7**
+
 ### 工作原理
-定期对比存储在本机的证书与上一次推送成功的证书的 MD5
+定期[1]对比存储在本机的证书与上一次推送成功的证书的 MD5
 
 如有差异则将新证书推送到 CDN
 
 使用 SQLite3 做为数据库，并支持阿里云邮件推送服务，如有更新可以将推送结果发送到您的邮箱。
 
-### 使用方法
+## 配置环境
 1. 准备
 ```
-git clone https://github.com/0xJacky/cdn_cert.git
-pip install aliyun-python-sdk-cdn sqlalchemy
+git clone https://github.com/0xJacky/cdn_cert.git "CDN Cert"
+pip3 install -r requirements.txt
 ```
 2. 配置
 
 将 `settings-template.py` 复制一份并命名为 `settings.py`
 
-打开 `settings.py` 进行配置
-
-运行 `python update.py -a` 添加需要自动续期的域名到数据库
+打开 `settings.py` 配置 Let's encrypt 证书目录，邮件发送账户等，在 `settings-simple.py`
+中，我提供了基于 certbot 和 acme.sh 管理证书的配置模板，请根据需求进行注释或解除注释
 
 ##### 2018.6.7 更新日志（important!)
 
@@ -32,73 +41,40 @@ pip install aliyun-python-sdk-cdn sqlalchemy
 
 例如，使用 acme.sh 管理证书的用户，生成的私钥名称与域名相同，则应该设置为 `PrivkeyName = '{{ domain_name }}.key'`
 
+## 使用方法
 
-3.  参数
+1. 用法 `-h/ --help`
+    ```
+    python3 cdncert.py -h 
+    usage: cdncert.py [-h] [-f] [-o ONLY] [-a {domain,user}] [-d {domain,user}]
+                      [-ls {domains,users}] [-v]
+    
+    CDN Cert - Automatically push the new certificates to CDN
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      -f, --force           force update
+      -o ONLY, --only ONLY  update only, use it after -f/--force
+      -a {domain,user}, --add {domain,user}
+                            add [domain/user] to database
+      -d {domain,user}, --delete {domain,user}
+                            delete [domain/user] from database
+      -ls {domains,users}, --list {domains,users}
+                            print all [domains/users] from database
+      -v, --verbosity       increase output verbosity
 
-```
-$python update.py -h
-usage: update.py [-h] [-f] [-o ONLY] [-a] [-d] [-ls]
+    ```
+2. 添加用户信息 `-a user`
+3. 添加域名信息 `-a domain`
+4. 删除用户 `-d user`
+5. 删除域名 `-d domain`
+6. 列出所有域名/用户 `-ls users/domains`
+7. 开发模式 `-v`
+8. 强制更新 `-f`
+9. 推送成功的邮件模板
+    
 
-CDN_Cert - Automatically push the new certificates to CDN
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -f, --force           force update
-  -o ONLY, --only ONLY  update only, use it after -f/-force
-  -a, --add             add domain name to database
-  -d, --delete          remove domain name from database
-  -ls, --list           print all the domain names from database
-
-
-e.g.
-$python update.py
-Domain: jackyu.cn
-Result: Push success
-RequestId: D40F6BC4-6418-43B1-8E31-8BBB548AB3E2
-
-Domain: beta.uozi.org
-Result: Push success
-RequestId: 9BF6A271-38CC-45F4-8DA0-48022DB742A3
-
-
-邮件发送成功！
-$python update.py -f
-Domain: jackyu.cn
-Result: Push success
-RequestId: D40F6BC4-6418-43B1-8E31-8BBB548AB3E2
-
-Domain: beta.uozi.org
-Result: Push success
-RequestId: 9BF6A271-38CC-45F4-8DA0-48022DB742A3
-
-
-邮件发送成功！
-
-$python update.py -f -o ipsw.pw
-Domain: ipsw.pw
-Result: Push success
-RequestId: AE15AC6F-5D71-4732-A6A6-02863057B202
-
-
-$python update.py -ls
-CDN Cert -- Domain List
------------------------
-apt.uozi.org
-jackyu.cn
-ipsw.pw
------------------------
-
-$python update.py -a
-Plase input the domain name, use ',' to split.
-ojbk.me
-Execute successfully.
-
-$python update.py -d
-Plase input a domain name to delete.
-beta.uozi.org
-Execute successfully.
-```
-4. 定时配置
+9. 定时配置
 ```
 crontab -e
 # 每天 3:30 执行
@@ -106,7 +82,7 @@ crontab -e
 ```
 
 ### LICENSE 版权声明
-Copyright © 2017 0xJacky
+Copyright © 2017 - 2019 0xJacky
 
 The program is distributed under the terms of the GNU Affero General Public License.
 
