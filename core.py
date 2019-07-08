@@ -31,7 +31,7 @@ class Core:
         else:
             domains = db.get_all_domain()
             for domain in domains:
-                queue = (domain.domain, )
+                queue += (domain.domain, )
         self.push(force=force, queue=queue)
 
     # 获取文件 md5
