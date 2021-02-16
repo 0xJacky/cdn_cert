@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 #
-# Copyright (c) 2017 0xJacky <jacky-943572677@qq.com>
+# Copyright (c) 2017-2021 0xJacky <me@jackyu.cn>
 #
-# ！请先使用 pip install aliyun-python-sdk-cdn 安装 sdk！
+# ！请先使用 pip3 install -r requirements.txt 安装依赖
 
 import argparse
 from core import Core
