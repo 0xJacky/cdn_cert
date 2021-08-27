@@ -5,6 +5,7 @@ import os
 import hashlib
 import json
 import settings
+from pathlib import Path
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkcdn.request.v20180510.SetDomainServerCertificateRequest import SetDomainServerCertificateRequest
 from prettytable import PrettyTable
@@ -31,7 +32,7 @@ class Core:
         else:
             domains = db.get_all_domain()
             for domain in domains:
-                queue += (domain.domain, )
+                queue += (domain.domain,)
         self.push(force=force, queue=queue)
 
     # 获取文件 md5
@@ -41,7 +42,8 @@ class Core:
         file = open(path, 'rb')
         return hashlib.md5(file.read()).hexdigest()
 
-    def add_user(self):
+    @staticmethod
+    def add_user():
         name = input('Please input the user name\n')
 
         if db.has_user(name):
@@ -63,7 +65,24 @@ class Core:
         if db.has_user(user) is not True:
             exit('\033[1;31mNo record of %s.\033[0m' % user)
 
-        db.add_domain(domain, user)
+        sure = input('Set your own server certificate and private key path: [y/n]')
+        if sure == 'y':
+            while True:
+                cert_path = input('Server certificate path:\n')
+                if Path(cert_path).exists():
+                    break
+                else:
+                    print('\033[1;31mFile not found, please input again.\033[0m')
+
+            while True:
+                private_key_path = input('Private key path:\n')
+                if Path(private_key_path).exists():
+                    break
+                else:
+                    print('\033[1;31mFile not found, please input again.\033[0m')
+            db.add_domain(domain, user, cert_path, private_key_path)
+        else:
+            db.add_domain(domain, user)
 
     @staticmethod
     def get_all_domain():
@@ -100,7 +119,24 @@ class Core:
         if db.has_user(user) is not True:
             exit('\033[1;31mNo record of this user.\033[0m')
 
-        db.update_domain(domain, user=user)
+        sure = input('Set your own server certificate and private key path: [y/n]')
+        if sure == 'y':
+            while True:
+                cert_path = input('Server certificate path:\n')
+                if Path(cert_path).exists():
+                    break
+                else:
+                    print('\033[1;31mFile not found, please input again.\033[0m')
+
+            while True:
+                private_key_path = input('Private key path:\n')
+                if Path(private_key_path).exists():
+                    break
+                else:
+                    print('\033[1;31mFile not found, please input again.\033[0m')
+            db.update_domain(domain, user=user, cert_path=cert_path, private_key_path=private_key_path)
+        else:
+            db.update_domain(domain, user=user)
 
     def delete_domain(self):
         self.get_all_domain()
@@ -129,17 +165,24 @@ class Core:
     def push(self, force, queue=()):
         msg = {}
         for domain in queue:
+            ServerCertificatePath = os.path.join(settings.LiveCert, domain,
+                                                 settings.ServerCertificateName)  # 安全证书路径
+
             PrivateKeyPath = os.path.join(settings.LiveCert, domain,
                                           settings.PrivkeyName.replace('{{ domain_name }}', domain))  # 私钥路径
             info = db.get_domain(domain)
             user = db.get_user(info.user)
             store_md5 = info.md5
-            currect_md5 = self.md5sum(PrivateKeyPath)
-            if not currect_md5 == store_md5 or force is True:
+
+            # 自定义路径
+            if info.cert_path and info.private_key_path:
+                ServerCertificatePath = info.cert_path
+                PrivateKeyPath = info.private_key_path
+
+            current_md5 = self.md5sum(PrivateKeyPath)
+            if not current_md5 == store_md5 or force is True:
                 try:
                     client = AcsClient(user.access_key_id, user.access_key_secret, 'cn-hangzhou')
-                    ServerCertificatePath = os.path.join(settings.LiveCert, domain,
-                                                         settings.ServerCertificateName)  # 安全证书路径
                     ServerCertificate = open(ServerCertificatePath, 'r').read()
                     PrivateKey = open(PrivateKeyPath, 'r').read()
                     CertName = domain + '_' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S")  # 证书名称
@@ -157,7 +200,7 @@ class Core:
                     RequestId = json.loads(response.decode('utf-8'))['RequestId']
                     result = "Push successfully\nRequestId: " + str(RequestId)
 
-                    db.update_domain(domain, currect_md5)
+                    db.update_domain(domain, current_md5)
                 except Exception as e:
                     result = e.get_error_code() if hasattr(e, 'get_error_code') else e
                 msg[domain] = result

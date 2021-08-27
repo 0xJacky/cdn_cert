@@ -1,6 +1,8 @@
 *.pyc
-settings.py
 cert.db
 test.py
 cert/
 .idea
+venv
+.DS_Store
+config.ini

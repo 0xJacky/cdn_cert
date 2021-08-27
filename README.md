@@ -1,5 +1,14 @@
 # CDN Cert
-自动将 Let's encrypt 续签后的证书推送到阿里云 CDN
+自动将 Let's encrypt，或其他网站证书推送到阿里云 CDN
+
+## v2.1 Beta 更新日志
+更新于 2021 年 8 月 27 日
+1. 修复 Python3.9 下邮件发送问题
+2. 新增自定义证书路径配置，从上个版本更新的用户请在 `cert.db` 中，
+为 `domain` 表添加 `cert_path(VARCHAR(255),is_nullable:YES)` 
+和 `private_key_path(VARCHAR(255),is_nullable:YES)`
+3. 使用 configparse 管理配置文件，更新时请将 `config-template.ini` 复制一份改名为 `config.ini` 并重新配置
+4. 支持 Docker 部署 (TODO)
 
 ## v2 更新日志
 更新于 2019 年 7 月 8 日
@@ -18,52 +27,56 @@
 
 使用 SQLite3 做为数据库，并支持阿里云邮件推送服务，如有更新可以将推送结果发送到您的邮箱。
 
-## 配置环境
+## 手动配置环境
 1. 准备
 ```
-git clone https://github.com/0xJacky/cdn_cert.git "CDN Cert"
+git clone https://github.com/0xJacky/cdn_cert.git
 pip3 install -r requirements.txt
 ```
 2. 配置
 
-将 `settings-template.py` 复制一份并命名为 `settings.py`
+将 `config-template.ini` 复制一份并命名为 `config-template.ini`
 
-打开 `settings.py` 配置 Let's encrypt 证书目录，邮件发送账户等，在 `settings-simple.py`
-中，我提供了基于 certbot 和 acme.sh 管理证书的配置模板，请根据需求进行注释或解除注释
+#### config.ini 配置说明
 
-##### 2018.6.7 更新日志（important!)
+| 配置项                           | 默认值                | 说明                                                         |
+| -------------------------------- | --------------------- | ------------------------------------------------------------ |
+| database.Path                    | cert.db               | 指定数据库存储的地址，相对路径                               |
+| letencrypt.Path                  | /cert/ssl             | Let's encrypt 证书目录                                       |
+| letencrypt.ServerCertificateName | fullchain.cer         | 如果您使用的是 Let's encrypt 官方的 certbot 则无需修改此项   |
+| letencrypt.PrivateKeyName        | {{ domain_name }}.key | PrivkeyName 提供变量 {{ domain_name }}<br />例如，使用 acme.sh 管理证书的用户，生成的私钥名称与域名相同，则应该设置为 PrivkeyName = {{ domain_name }}.key |
+| mail.Host                        | smtpdm.aliyun.com     | # 邮件反馈设置 - 阿里云邮件推送服务                          |
+| mail.Port                        | 465                   | 发信端口，除 80 端口外默认使用 SSL                           |
+| mail.UserName                    | -                     | 发件人地址，通过控制台创建的发件人地址                       |
+| mail.PassWord                    | -                     | 发件人密码，通过控制台创建的发件人密码                       |
+| mail.From                        | -                     | 发件人昵称                                                   |
+| mail.To                          | -                     | 收件人地址，支持多个收件人，最多30个，以 `,` 分割            |
 
-请注意，更新完本版本后务必重新配置 `settings-template.py`
 
-本次更新增加了 `ServerCertificateName` 和 `PrivkeyName` 两个变量，以适应 acme.sh 生成证书的路径
-
-`PrivkeyName` 提供变量 `{{ domain_name }}`
-
-例如，使用 acme.sh 管理证书的用户，生成的私钥名称与域名相同，则应该设置为 `PrivkeyName = '{{ domain_name }}.key'`
 
 ## 使用方法
 
 1. 用法 `-h/ --help`
     ```
-    python3 cdncert.py -h 
-    usage: cdncert.py [-h] [-f] [-o ONLY] [-a {domain,user}] [-d {domain,user}]
-                      [-ls {domains,users}] [-v]
-    
-    CDN Cert - Automatically push the new certificates to CDN
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      -f, --force           force update
-      -o ONLY, --only ONLY  update only, use it after -f/--force
-      -a {domain,user}, --add {domain,user}
-                            add [domain/user] to database
-      -d {domain,user}, --delete {domain,user}
-                            delete [domain/user] from database
-      -ls {domains,users}, --list {domains,users}
-                            print all [domains/users] from database
-      -v, --verbosity       increase output verbosity
-
-    ```
+   usage: cdncert.py [-h] [-f] [-o ONLY] [-a {domain,user}] [-e {domain,user}] [-d {domain,user}] [-ls {domains,users}] [-v]
+   
+   CDN Cert - Automatically push the new certificates to CDN
+   
+   optional arguments:
+     -h, --help            show this help message and exit
+     -f, --force           force update
+     -o ONLY, --only ONLY  update only, use it after -f/--force
+     -a {domain,user}, --add {domain,user}
+                           add [domain/user] to database
+     -e {domain,user}, --edit {domain,user}
+                           edit [domain/user] in database
+     -d {domain,user}, --delete {domain,user}
+                           delete [domain/user] from database
+     -ls {domains,users}, --list {domains,users}
+                           print all [domains/users] from database
+     -v, --verbosity       increase output verbosity
+   
+   ```
 2. 添加用户信息 `-a user`
 
     ![image][image-1]
@@ -97,12 +110,11 @@ pip3 install -r requirements.txt
 
     ![image][image-9]
     
-
-11. 定时配置
+11. 定时配置（Docker 无需配置）
 ```
 crontab -e
 # 每天 3:30 执行
-30 3 * * * python3 /home/cdn_cert/update.py
+30 3 * * * python3 /home/cdn_cert/cdncert.py
 ```
 
 ### LICENSE 版权声明

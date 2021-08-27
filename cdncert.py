@@ -13,8 +13,11 @@ parser = argparse.ArgumentParser(description='CDN Cert - Automatically push the 
 parser.add_argument('-f', '--force', action="store_true", help='force update')
 parser.add_argument('-o', '--only', action="store", default=None, help='update only, use it after -f/--force')
 parser.add_argument('-a', '--add', action="store", choices=['domain', 'user'], help='add [domain/user] to database')
-parser.add_argument('-d', '--delete', action="store", choices=['domain', 'user'], help='delete [domain/user] from database')
-parser.add_argument('-ls', '--list', action="store", choices=['domains', 'users'], help='print all [domains/users] from database')
+parser.add_argument('-e', '--edit', action="store", choices=['domain', 'user'], help='edit [domain/user] in database')
+parser.add_argument('-d', '--delete', action="store", choices=['domain', 'user'], help='delete [domain/user] from '
+                                                                                       'database')
+parser.add_argument('-ls', '--list', action="store", choices=['domains', 'users'], help='print all [domains/users] '
+                                                                                        'from database')
 parser.add_argument("-v", "--verbosity", action="store_true", help="increase output verbosity")
 args = parser.parse_args()
 
@@ -28,6 +31,12 @@ elif args.add:
         Core.add_user()
     elif args.add == 'domain':
         Core.add_domain()
+elif args.edit:
+    if args.edit == 'user':
+        pass
+        # Core.update_user()
+    elif args.edit == 'domain':
+        Core.update_domain()
 elif args.delete:
     if args.delete == 'user':
         Core.delete_user()
