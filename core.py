@@ -4,7 +4,9 @@ import datetime
 import os
 import hashlib
 import json
+
 import settings
+from logger import log
 from pathlib import Path
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkcdn.request.v20180510.SetDomainServerCertificateRequest import SetDomainServerCertificateRequest
@@ -33,7 +35,10 @@ class Core:
             domains = db.get_all_domain()
             for domain in domains:
                 queue += (domain.domain,)
-        self.push(force=force, queue=queue)
+        try:
+            self.push(force=force, queue=queue)
+        except Exception as e:
+            log.error(e)
 
     # 获取文件 md5
     # 返回: 字符串
@@ -52,6 +57,22 @@ class Core:
         access_key_id = input('Please input the Access Key ID\n')
         access_key_secret = input('Please input the Access Key Secret\n')
         db.add_user(name, access_key_id, access_key_secret)
+
+    def update_user(self):
+        self.get_all_user()
+
+        name = input('Please input a user name from the table above.\n')
+
+        if db.has_user(name) is False:
+            exit('\033[1;31mUser %s not exists.\033[0m' % name)
+
+        access_key_id = input('Please input the Access Key ID, '
+                              'leave black if you do not want to change\n')
+
+        access_key_secret = input('Please input the Access Key Secret, '
+                                  'leave black if you do not want to change\n')
+
+        db.update_user(name, access_key_id, access_key_secret)
 
     def add_domain(self):
         domain = input('Please input your domain here\n')
@@ -169,7 +190,7 @@ class Core:
                                                  settings.ServerCertificateName)  # 安全证书路径
 
             PrivateKeyPath = os.path.join(settings.LiveCert, domain,
-                                          settings.PrivkeyName.replace('{{ domain_name }}', domain))  # 私钥路径
+                                          settings.PrivateKeyName.replace('{{ domain_name }}', domain))  # 私钥路径
             info = db.get_domain(domain)
             user = db.get_user(info.user)
             store_md5 = info.md5
@@ -199,16 +220,16 @@ class Core:
                     response = client.do_action_with_exception(request)
                     RequestId = json.loads(response.decode('utf-8'))['RequestId']
                     result = "Push successfully\nRequestId: " + str(RequestId)
-
-                    db.update_domain(domain, current_md5)
                 except Exception as e:
                     result = e.get_error_code() if hasattr(e, 'get_error_code') else e
+                finally:
+                    db.update_domain(domain, current_md5)
                 msg[domain] = result
         if msg:
             content = ""
             for k, v in msg.items():
                 content += 'Domain: ' + k + '\nResult: ' + str(v) + "\n\n"
-            print(content)
+            log.info(content)
             mail.send('[CDN Cert] 证书推送结果', content)
         else:
-            print("Already up-to-date.")
+            log.info("Already up-to-date.")

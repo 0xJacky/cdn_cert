@@ -34,7 +34,7 @@ elif args.add:
 elif args.edit:
     if args.edit == 'user':
         pass
-        # Core.update_user()
+        Core.update_user()
     elif args.edit == 'domain':
         Core.update_domain()
 elif args.delete:

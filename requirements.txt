@@ -1,4 +1,5 @@
-aliyun_python_sdk_cdn==3.6.1
-aliyun_python_sdk_core==2.13.30
-prettytable==2.0.0
-SQLAlchemy==1.3.23
+aliyun_python_sdk_cdn==3.6.4
+aliyun_python_sdk_core==2.13.35
+prettytable==2.2.0
+schedule==1.1.0
+SQLAlchemy==1.4.23

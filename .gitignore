@@ -6,3 +6,4 @@ cert/
 venv
 .DS_Store
 config.ini
+cdncert.log

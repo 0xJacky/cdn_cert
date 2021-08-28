@@ -1,6 +1,7 @@
 FROM python:latest
-VOLUME ['/app', '/cert']
-WORKDIR /app
+
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-COPY ./sources.list /etc/apt/sources.list
-RUN apt update -y && apt install cron -y
+WORKDIR /app
+COPY ./requirements.txt ./requirements.txt
+RUN cd /app && pip install -r requirements.txt
+ENTRYPOINT ["python3", "cron.py"]

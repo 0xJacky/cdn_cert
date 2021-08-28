@@ -75,6 +75,19 @@ class Database(object):
     def get_all_user(self):
         return self.session.query(User).all()
 
+    def update_user(self, name, access_key_id=None, access_key_secret=None):
+        try:
+            user = self.session.query(User).filter(User.name == name).first()
+            if access_key_id:
+                user.access_key_id = access_key_id
+            if access_key_secret:
+                user.access_key_secret = access_key_secret
+
+            self.session.commit()
+            print("\033[1;32mUser %s updated successfully\033[0m" % name)
+        except Exception as e:
+            print(e)
+
     def update_domain(self, domain, md5, user=None, cert_path=None, private_key_path=None):
         try:
             domain = self.session.query(Domain).filter(Domain.domain == domain).first()
@@ -82,9 +95,9 @@ class Database(object):
             if user is not None:
                 domain.user = user
             if cert_path is not None:
-                domain.cert_path=cert_path
+                domain.cert_path = cert_path
             if private_key_path is not None:
-                domain.private_key_path=private_key_path
+                domain.private_key_path = private_key_path
             self.session.commit()
             print("\033[1;32mDomain %s updated successfully\033[0m" % domain.domain)
         except Exception as e:
