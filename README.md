@@ -35,7 +35,6 @@
 
    ```
    git clone https://github.com/0xJacky/cdn_cert.git
-   docker build -t cdn_cert .
    ```
 
 2. 配置将 `config-template.ini` 复制一份并命名为 `config.ini`
@@ -62,10 +61,10 @@
 ## 手动配置环境
 
 1. 准备
-```
-git clone https://github.com/0xJacky/cdn_cert.git
-pip3 install -r requirements.txt
-```
+   ```
+   git clone https://github.com/0xJacky/cdn_cert.git
+   pip3 install -r requirements.txt
+   ```
 2. 将 `config-template.ini` 复制一份并命名为 `config.ini`
 
 ## config.ini 配置说明
@@ -159,7 +158,7 @@ crontab -e
 ```
 
 ### LICENSE 版权声明
-Copyright © 2017 - 2021 0xJacky
+Copyright © 2017 - 2023 0xJacky
 
 The program is distributed under the terms of the GNU Affero General Public License.
 
