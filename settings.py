@@ -5,6 +5,7 @@ import configparser
 dataDir = 'data'
 if not os.path.isfile(dataDir):
   os.path.isfile(dataDir)
+if not os.path.isfile(dataDir + '/config.ini'):
   os.system('cp config-template.ini ' + dataDir + '/config.ini')
 config = configparser.ConfigParser()
 config.read(dataDir + '/config.ini')
