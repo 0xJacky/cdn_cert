@@ -42,7 +42,7 @@
 3. 运行 Docker
 
    ```
-   docker run -dit -v ${cdn_cert项目的绝对路径}:/app \
+   docker run -dit -v ${配置和数据库文件目录}:/app/data \
                    -v ${证书文件夹的绝对路径}:/cert \
                    --name=cdn_cert -e "TZ=Asia/Shanghai" \
                    cdn_cert /bin/bash
