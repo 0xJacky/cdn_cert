@@ -2,9 +2,13 @@
 # -*- coding:utf-8 -*-
 import os
 import configparser
-
+dataDir = 'data'
+if not os.path.isfile(dataDir):
+  os.path.isfile(dataDir)
+if not os.path.isfile(dataDir + '/config.ini'):
+  os.system('cp config-template.ini ' + dataDir + '/config.ini')
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read(dataDir + '/config.ini')
 # 数据存储地址
 ABS_PATH = os.path.split(os.path.realpath(__file__))[0]
 DB_PATH = os.path.join(ABS_PATH, config['database']['Path'])

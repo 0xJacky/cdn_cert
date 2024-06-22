@@ -25,6 +25,8 @@ class Mail:
         # 构建alternative的text/plain部分
         textplain = MIMEText(content, _subtype='plain', _charset='UTF-8')
         self.msg.attach(textplain)
+        if settings.UserName is None :
+            return
         # 发送邮件
         try:
             if settings.Port == 80:
