@@ -88,10 +88,11 @@ class Database(object):
         except Exception as e:
             print(e)
 
-    def update_domain(self, domain, md5, user=None, cert_path=None, private_key_path=None):
+    def update_domain(self, domain, md5=None, user=None, cert_path=None, private_key_path=None):
         try:
             domain = self.session.query(Domain).filter(Domain.domain == domain).first()
-            domain.md5 = md5
+            if md5 is not None:
+                domain.md5 = md5
             if user is not None:
                 domain.user = user
             if cert_path is not None:

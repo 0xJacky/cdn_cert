@@ -5,5 +5,5 @@ cert/
 .idea
 venv
 .DS_Store
-config.ini
+data/config.ini
 cdncert.log

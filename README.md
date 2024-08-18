@@ -45,7 +45,7 @@
    docker run -dit -v ${配置和数据库文件目录}:/app/data \
                    -v ${证书文件夹的绝对路径}:/cert \
                    --name=cdn_cert -e "TZ=Asia/Shanghai" \
-                   cdn_cert /bin/bash
+                   uzoi/cdn_cert /bin/bash
    ```
 
 4. 修改配置后使用 `docker restart cdn_cert` 重启容器。
@@ -158,7 +158,7 @@ crontab -e
 ```
 
 ### LICENSE 版权声明
-Copyright © 2017 - 2023 0xJacky
+Copyright © 2017 - 2024 0xJacky
 
 The program is distributed under the terms of the GNU Affero General Public License.
 
@@ -169,12 +169,12 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU Affero General Public License along with this program. If not, see http://www.gnu.org/licenses/.
 
 
-[image-1]:	https://github.com/0xJacky/cdn_cert/raw/master/screenshots/1.png
-[image-2]:	https://github.com/0xJacky/cdn_cert/raw/master/screenshots/2.png
-[image-3]:	https://github.com/0xJacky/cdn_cert/raw/master/screenshots/3.png
-[image-4]:	https://github.com/0xJacky/cdn_cert/raw/master/screenshots/4.png
-[image-5]:	https://github.com/0xJacky/cdn_cert/raw/master/screenshots/5.png
-[image-6]:	https://github.com/0xJacky/cdn_cert/raw/master/screenshots/6.png
-[image-7]:	https://github.com/0xJacky/cdn_cert/raw/master/screenshots/7.png
-[image-8]:	https://github.com/0xJacky/cdn_cert/raw/master/screenshots/8.png
-[image-9]:	https://github.com/0xJacky/cdn_cert/raw/master/screenshots/9.png
+[image-1]:	screenshots/1.png
+[image-2]:	screenshots/2.png
+[image-3]:	screenshots/3.png
+[image-4]:	screenshots/4.png
+[image-5]:	screenshots/5.png
+[image-6]:	screenshots/6.png
+[image-7]:	screenshots/7.png
+[image-8]:	screenshots/8.png
+[image-9]:	screenshots/9.png
