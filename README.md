@@ -45,7 +45,7 @@
    docker run -dit -v ${配置和数据库文件目录}:/app/data \
                    -v ${证书文件夹的绝对路径}:/cert \
                    --name=cdn_cert -e "TZ=Asia/Shanghai" \
-                   uzoi/cdn_cert /bin/bash
+                   uozi/cdn_cert /bin/bash
    ```
 
 4. 修改配置后使用 `docker restart cdn_cert` 重启容器。
