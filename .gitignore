@@ -7,3 +7,4 @@ venv
 .DS_Store
 data/config.ini
 cdncert.log
+config.ini
