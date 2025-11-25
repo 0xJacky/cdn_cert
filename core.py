@@ -40,12 +40,21 @@ class Core:
         except Exception as e:
             log.error(e)
 
-    # 获取文件 md5
-    # 返回: 字符串
     @staticmethod
-    def md5sum(path):
-        file = open(path, 'rb')
-        return hashlib.md5(file.read()).hexdigest()
+    def combined_digest(cert_path, key_path):
+        """
+        生成证书+私钥组合摘要，任何一端变化都会触发重推，防止复用私钥导致漏检。
+        """
+        digest = hashlib.md5()
+
+        def update(path):
+            with open(path, 'rb') as fp:
+                for chunk in iter(lambda: fp.read(4096), b''):
+                    digest.update(chunk)
+
+        update(cert_path)
+        update(key_path)
+        return digest.hexdigest()
 
     @staticmethod
     def add_user():
@@ -200,7 +209,7 @@ class Core:
                 ServerCertificatePath = info.cert_path
                 PrivateKeyPath = info.private_key_path
 
-            current_md5 = self.md5sum(PrivateKeyPath)
+            current_md5 = self.combined_digest(ServerCertificatePath, PrivateKeyPath)
             if not current_md5 == store_md5 or force is True:
                 try:
                     client = AcsClient(user.access_key_id, user.access_key_secret, 'cn-hangzhou')
